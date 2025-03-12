@@ -71,3 +71,37 @@ p {
   
    filter: drop-shadow(2px 1.5px 1px rgba(0,0,105,0.9));
 }
+@keyframes confetti-fall {
+  0% { transform: translateY(0px) rotateZ(0deg); opacity: 1; }
+  100% { transform: translateY(500px) rotateZ(360deg); opacity: 0; }
+}
+
+.confetti {
+  position: fixed;
+  top: 0;
+  left: 50%;
+  width: 10px;
+  height: 20px;
+  background-color: red;
+  opacity: 1;
+  transform-origin: top left;
+  animation: confetti-fall 3s linear infinite;
+}
+
+.happy-birthday {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 60px;
+  font-family: 'Short Stack', cursive;
+  color: gold;
+  text-shadow: 3px 3px 10px red;
+  opacity: 0;
+  animation: fadeIn 2s forwards;
+}
+
+@keyframes fadeIn {
+  0% { opacity: 0; transform: translate(-50%, -60%); }
+  100% { opacity: 1; transform: translate(-50%, -50%); }
+}

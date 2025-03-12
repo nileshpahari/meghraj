@@ -1,82 +1,83 @@
 let highestZ = 1;
+let movedCount = 0;
+const totalPapers = document.querySelectorAll('.paper').length;
 
 class Paper {
-  holdingPaper = false;
-  mouseTouchX = 0;
-  mouseTouchY = 0;
-  mouseX = 0;
-  mouseY = 0;
-  prevMouseX = 0;
-  prevMouseY = 0;
-  velX = 0;
-  velY = 0;
-  rotation = Math.random() * 30 - 15;
-  currentPaperX = 0;
-  currentPaperY = 0;
-  rotating = false;
+  constructor(paper) {
+    this.paper = paper;
+    this.holdingPaper = false;
+    this.mouseX = 0;
+    this.mouseY = 0;
+    this.prevMouseX = 0;
+    this.prevMouseY = 0;
+    this.velX = 0;
+    this.velY = 0;
+    this.rotation = Math.random() * 30 - 15;
+    this.currentPaperX = 0;
+    this.currentPaperY = 0;
+    this.moved = false;
 
-  init(paper) {
-    document.addEventListener('mousemove', (e) => {
-      if(!this.rotating) {
-        this.mouseX = e.clientX;
-        this.mouseY = e.clientY;
-        
-        this.velX = this.mouseX - this.prevMouseX;
-        this.velY = this.mouseY - this.prevMouseY;
-      }
-        
-      const dirX = e.clientX - this.mouseTouchX;
-      const dirY = e.clientY - this.mouseTouchY;
-      const dirLength = Math.sqrt(dirX*dirX+dirY*dirY);
-      const dirNormalizedX = dirX / dirLength;
-      const dirNormalizedY = dirY / dirLength;
+    this.init();
+  }
 
-      const angle = Math.atan2(dirNormalizedY, dirNormalizedX);
-      let degrees = 180 * angle / Math.PI;
-      degrees = (360 + Math.round(degrees)) % 360;
-      if(this.rotating) {
-        this.rotation = degrees;
-      }
-
-      if(this.holdingPaper) {
-        if(!this.rotating) {
-          this.currentPaperX += this.velX;
-          this.currentPaperY += this.velY;
-        }
-        this.prevMouseX = this.mouseX;
-        this.prevMouseY = this.mouseY;
-
-        paper.style.transform = `translateX(${this.currentPaperX}px) translateY(${this.currentPaperY}px) rotateZ(${this.rotation}deg)`;
-      }
-    })
-
-    paper.addEventListener('mousedown', (e) => {
-      if(this.holdingPaper) return; 
-      this.holdingPaper = true;
+  init() {
+    document.addEventListener("mousemove", (e) => {
+      if (!this.holdingPaper) return;
       
-      paper.style.zIndex = highestZ;
-      highestZ += 1;
-      
-      if(e.button === 0) {
-        this.mouseTouchX = this.mouseX;
-        this.mouseTouchY = this.mouseY;
-        this.prevMouseX = this.mouseX;
-        this.prevMouseY = this.mouseY;
-      }
-      if(e.button === 2) {
-        this.rotating = true;
-      }
+      this.mouseX = e.clientX;
+      this.mouseY = e.clientY;
+      this.velX = this.mouseX - this.prevMouseX;
+      this.velY = this.mouseY - this.prevMouseY;
+
+      this.currentPaperX += this.velX;
+      this.currentPaperY += this.velY;
+
+      this.paper.style.transform = `translate(${this.currentPaperX}px, ${this.currentPaperY}px) rotate(${this.rotation}deg)`;
+
+      this.prevMouseX = this.mouseX;
+      this.prevMouseY = this.mouseY;
     });
-    window.addEventListener('mouseup', () => {
+
+    this.paper.addEventListener("mousedown", (e) => {
+      if (this.holdingPaper) return;
+      this.holdingPaper = true;
+      this.paper.style.zIndex = highestZ++;
+      this.prevMouseX = e.clientX;
+      this.prevMouseY = e.clientY;
+    });
+
+    window.addEventListener("mouseup", () => {
+      if (this.holdingPaper && !this.moved) {
+        this.moved = true;
+        movedCount++;
+        checkAllMoved();
+      }
       this.holdingPaper = false;
-      this.rotating = false;
     });
   }
 }
 
-const papers = Array.from(document.querySelectorAll('.paper'));
+document.querySelectorAll(".paper").forEach((paper) => new Paper(paper));
 
-papers.forEach(paper => {
-  const p = new Paper();
-  p.init(paper);
-});
+function checkAllMoved() {
+  if (movedCount === totalPapers) {
+    showBirthdayAnimation();
+  }
+}
+
+function showBirthdayAnimation() {
+  const message = document.createElement("div");
+  message.classList.add("happy-birthday");
+  message.innerText = "🎉 Happy Birthday! 🎂";
+  document.body.appendChild(message);
+
+  for (let i = 0; i < 100; i++) {
+    const confetti = document.createElement("div");
+    confetti.classList.add("confetti");
+    confetti.style.left = `${Math.random() * 100}vw`;
+    confetti.style.backgroundColor = `hsl(${Math.random() * 360}, 100%, 50%)`;
+    confetti.style.animationDuration = `${Math.random() * 3 + 2}s`;
+    confetti.style.animationDelay = `${Math.random()}s`;
+    document.body.appendChild(confetti);
+  }
+}
